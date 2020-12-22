@@ -1,0 +1,31 @@
+Chrony.yml
+
+- hosts: all
+  become_user: root
+
+  vars:
+   chronySource: ['0.us.pool.ntp.org',
+                  '1.us.pool.ntp.org']
+   templateSource: '/home/sburns/chrony-install/chrony_template.j2' 
+
+  tasks: 
+    - name: install chrony
+      yum: 
+        name=chrony
+
+        state=present
+
+    - name: deploy chrony.conf to hosts
+      template:
+       src=chrony-install/chrony_template.j2
+       dest=/etc/chrony.conf
+       owner=root
+       group=root
+       mode=0644
+       backup=yes
+
+    - name: ensure chrony is running and enabled
+      service:
+        name=chronyd
+        state=restarted
+        enabled=yes
